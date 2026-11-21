@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SP DIGITAL SEVA KENDRA</title>
+<style>
+body{font-family:Arial,sans-serif;background:#eef3f9;margin:0;padding:20px;text-align:center}
+.container{max-width:480px;margin:20px auto;background:white;padding:25px;border-radius:15px;box-shadow:0 3px 15px #bbb}
+h1{color:#0755a5;font-size:25px}
+h3{color:#333}
+input,select,button{width:100%;padding:13px;margin:10px 0;border:1px solid #ccc;border-radius:8px;font-size:16px;box-sizing:border-box}
+button{background:#0755a5;color:white;border:0;font-weight:bold;cursor:pointer}
+.pay{background:#168a42}
+.print{background:#6b36a8}
+.total{font-size:24px;color:#168a42;font-weight:bold}
+.note{font-size:13px;color:#666}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>SP DIGITAL SEVA KENDRA</h1>
+<h3>SELF SERVICE PRINTING PORTAL</h3>
+<p>আপনার PDF ফাইল আপলোড করুন</p>
+
+<input type="file" id="pdf" accept=".pdf,application/pdf">
+
+<label>প্রিন্টের ধরন</label>
+<select id="type">
+<option value="10">Black & White - ₹10 / Page</option>
+<option value="20">Colour Print - ₹20 / Page</option>
+</select>
+
+<label>মোট পেজ সংখ্যা</label>
+<input type="number" id="pages" min="1" value="1">
+
+<label>কত কপি প্রিন্ট করবেন?</label>
+<input type="number" id="copies" min="1" value="1">
+
+<p>মোট টাকা</p>
+<div class="total" id="total">₹10</div>
+
+<button class="pay" onclick="payNow()">PAY WITH PHONEPE</button>
+
+<p class="note">পেমেন্ট সম্পন্ন করে নিচের বোতামে ক্লিক করুন।</p>
+
+<button class="print" onclick="printPDF()">PRINT PDF</button>
+
+<p class="note">SP DIGITAL SEVA KENDRA<br>
+Thank You For Visiting Us</p>
+</div>
+
+<script>
+let pdfURL = "";
+
+function calculate(){
+ let rate = Number(document.getElementById("type").value);
+ let pages = Math.max(1,Number(document.getElementById("pages").value)||1);
+ let copies = Math.max(1,Number(document.getElementById("copies").value)||1);
+ document.getElementById("total").innerText =
+ "₹"+(rate*pages*copies);
+}
+document.getElementById("type").onchange=calculate;
+document.getElementById("pages").oninput=calculate;
+document.getElementById("copies").oninput=calculate;
+
+document.getElementById("pdf").onchange=function(){
+ const file=this.files[0];
+ if(!file)return;
+ if(file.type!=="application/pdf"){
+ alert("শুধুমাত্র PDF ফাইল নির্বাচন করুন");
+ this.value="";
+ return;
+ }
+ pdfURL=URL.createObjectURL(file);
+ alert("PDF Upload Successful");
+};
+
+function payNow(){
+ if(!pdfURL){
+ alert("আগে PDF ফাইল আপলোড করুন");
+ return;
+ }
+ let amount=document.getElementById("total").innerText.replace("₹","");
+ let upi="Q19315198@ybl";
+ let link="upi://pay?pa="+upi+
+ "&pn=SP%20DIGITAL%20SEVA%20KENDRA"+
+ "&am="+amount+"&cu=INR";
+ window.location.href=link;
+}
+
+function printPDF(){
+ if(!pdfURL){
+ alert("আগে PDF আপলোড করুন");
+ return;
+ }
+ let copies=Math.max(1,Number(document.getElementById("copies").value)||1);
+ let frame=document.createElement("iframe");
+ frame.style.display="none";
+ frame.src=pdfURL;
+ document.body.appendChild(frame);
+ frame.onload=function(){
+ frame.contentWindow.focus();
+ for(let i=0;i<copies;i++){
+ frame.contentWindow.print();
+ }
+ };
+}
+</script>
+</body>
+</html>
